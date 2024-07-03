@@ -3,16 +3,14 @@
 import math
 import sys
 
-# Matplotlib will need to be installed if it isn't already. This is the only package allowed for this base part of the 
-# assignment.
+# Matplotlib will need to be installed if it isn't already
 from matplotlib import pyplot
 from matplotlib.patches import Rectangle
 
-# import our basic, light-weight png reader library
+# import png reader library
 import imageIO.png
 
-# Define constant and global variables
-TEST_MODE = False    # Please, DO NOT change this variable!
+TEST_MODE = False # Do not change this variable
 
 def readRGBImageToSeparatePixelArrays(input_filename):
     image_reader = imageIO.png.Reader(filename=input_filename)
@@ -21,7 +19,7 @@ def readRGBImageToSeparatePixelArrays(input_filename):
 
     print("read image width={}, height={}".format(image_width, image_height))
 
-    # our pixel arrays are lists of lists, where each inner list stores one row of greyscale pixels
+    # Pixel arrays are lists of lists, where each inner list stores one row of greyscale pixels
     pixel_array_r = []
     pixel_array_g = []
     pixel_array_b = []
@@ -51,7 +49,7 @@ def readRGBImageToSeparatePixelArrays(input_filename):
 
     return (image_width, image_height, pixel_array_r, pixel_array_g, pixel_array_b)
 
-# a useful shortcut method to create a list of lists based array representation for an image, initialized with a value
+# A shortcut method to create a list of lists based array representation for an image, initialized with a value
 def createInitializedGreyscalePixelArray(image_width, image_height, initValue = 0):
     new_pixel_array = []
     for _ in range(image_height):
@@ -82,6 +80,7 @@ class Queue:
         return len(self.items)
 
 
+# Converting from RGB image to greyscale image
 def computeRGBToGreyscale(image_width, image_height, px_array_r, px_array_g, px_array_b):
 
     greyscale_pixel_array = createInitializedGreyscalePixelArray(image_width, image_height)
@@ -93,6 +92,7 @@ def computeRGBToGreyscale(image_width, image_height, px_array_r, px_array_g, px_
     return greyscale_pixel_array
 
 
+# Producing cumulative histogram
 def computeCumulativeHistogram(pixel_array, image_width, image_height, nr_bins):
 
     cumulative_histogram = [0] * nr_bins
@@ -108,6 +108,7 @@ def computeCumulativeHistogram(pixel_array, image_width, image_height, nr_bins):
     return cumulative_histogram
 
 
+# Normalising with 5-95 percentile-based mapping
 def percentileMapping(pixel_array, image_width, image_height, cumulative_histogram, alpha, beta):
     
     q_alpha = None
@@ -146,6 +147,7 @@ def percentileMapping(pixel_array, image_width, image_height, cumulative_histogr
     return pixel_array
 
 
+# Detecting both vertical and horizontal edges by applying 3x3 Laplacian filter
 def computeEdgesLaplacian(pixel_array, image_width, image_height):
 
     edge_map = createInitializedGreyscalePixelArray(image_width, image_height)
@@ -168,6 +170,7 @@ def computeEdgesLaplacian(pixel_array, image_width, image_height):
     return edge_map
 
 
+# Blurring image by applying 5x5 median filter
 def computeMedianFilter5x5(pixel_array, image_width, image_height):
 
     filtered_pixel_array = createInitializedGreyscalePixelArray(image_width, image_height)
@@ -191,6 +194,7 @@ def computeMedianFilter5x5(pixel_array, image_width, image_height):
     return filtered_pixel_array
 
 
+# Calculating the adaptive threshold value
 def computeAdaptiveThreshold(pixel_array, image_width, image_height):
     
     histogram = [0] * 256
@@ -239,6 +243,7 @@ def computeAdaptiveThreshold(pixel_array, image_width, image_height):
     return threshold_value
 
 
+# Producing binary region map with the threshold value
 def computeBinaryRegionMap(pixel_array, threshold_value, image_width, image_height):
 
     for i in range(image_height):
@@ -255,6 +260,7 @@ def computeBinaryRegionMap(pixel_array, threshold_value, image_width, image_heig
     return pixel_array
 
 
+# Dilating image by applying 5x5 circular structuring element
 def computeDilation5x5CircularSE(pixel_array, image_width, image_height):
 
     dilated_pixel_array = createInitializedGreyscalePixelArray(image_width, image_height)
@@ -293,6 +299,7 @@ def computeDilation5x5CircularSE(pixel_array, image_width, image_height):
     return dilated_pixel_array
 
 
+# Eroding image by applying 5x5 circular structuring element
 def computeErosion5x5CircularSE(pixel_array, image_width, image_height):
 
     eroded_pixel_array = createInitializedGreyscalePixelArray(image_width, image_height)
@@ -331,6 +338,7 @@ def computeErosion5x5CircularSE(pixel_array, image_width, image_height):
     return eroded_pixel_array
 
 
+# Finding all connected components and returning min/max x/y for each component
 def computeConnectedComponentLabeling(pixel_array, image_width, image_height):
 
     labelled_pixel_array = createInitializedGreyscalePixelArray(image_width, image_height)
@@ -381,83 +389,74 @@ def computeConnectedComponentLabeling(pixel_array, image_width, image_height):
     return label_list
 
 
-# This is our code skeleton that performs the coin detection.
+# Pipeline
 def main(input_path, output_path):
-    # This is the default input image, you may change the 'image_name' variable to test other images.
+    # Change the 'image_name' variable to test other images.
     image_name = 'complex_3'
     input_filename = f'./Images/complex_images/{image_name}.png'
     if TEST_MODE:
         input_filename = input_path
 
-    # we read in the png file, and receive three pixel arrays for red, green and blue components, respectively
-    # each pixel array contains 8 bit integer values between 0 and 255 encoding the color values
+    # Read in the png file, and receive three pixel arrays for red, green and blue components, respectively.
+    # Each pixel array contains 8 bit integer values between 0 and 255 encoding the color values.
     (image_width, image_height, px_array_r, px_array_g, px_array_b) = readRGBImageToSeparatePixelArrays(input_filename)
-    
-    ###################################
-    ### STUDENT IMPLEMENTATION Here ###
-    ###################################
     
     # Converting from RGB image to greyscale image
     grey_scale = computeRGBToGreyscale(image_width, image_height, px_array_r, px_array_g, px_array_b)
 
-    nr_bins = 256  # 256 intensity values from 0 to 255
+    nr_bins = 256 # 256 intensity values from 0 to 255
 
     # Producing cumulative histogram
     cumulative_histogram = computeCumulativeHistogram(grey_scale, image_width, image_height, nr_bins)
     
-    # Normalising with 5-95 percentile-based mapping
+    # 5-95 percentile-based mapping
     print("Converting to greyscale and normalising...")
     normalised_grey_scale = percentileMapping(grey_scale, image_width, image_height, cumulative_histogram, 5, 95)
 
-    # Computing edge strength by applying Laplacian filter
     print("Producing edge map...")
     edge_map = computeEdgesLaplacian(normalised_grey_scale, image_width, image_height)
 
     current_pixel_array = edge_map
 
-    # Blurring image by applying 5x5 median filter
+    # Blurring image 3 times
     for i in range(3):
         print("Blurring image {} time(s)...".format(i+1))
         median_filtered = computeMedianFilter5x5(current_pixel_array, image_width, image_height)
         current_pixel_array = median_filtered
 
-    # Computing adaptive thresholding
     print("Obtaining adaptive threshold value...")
     threshold_value = computeAdaptiveThreshold(current_pixel_array, image_width, image_height)
 
-    # Producing binary region map with the threshold value
     print("Producing binary region map...")
     binary_region_map = computeBinaryRegionMap(current_pixel_array, threshold_value, image_width, image_height)
 
     current_pixel_array = binary_region_map
 
-    # Dilating image by applying 5x5 circular structuring element
+    # Dilating image 5 times
     for i in range(5):
         print("Dilating image {} time(s)...".format(i+1))
         dilated_pixel_array = computeDilation5x5CircularSE(current_pixel_array, image_width, image_height)
         current_pixel_array = dilated_pixel_array
     
-    # Eroding image by applying 5x5 circular structuring element
+    # Eroding image 5 times
     for i in range(5):
         print("Eroding image {} time(s)...".format(i+1))
         eroded_pixel_array = computeErosion5x5CircularSE(current_pixel_array, image_width, image_height)
         current_pixel_array = eroded_pixel_array
 
-    # Finding all connected components and returning min/max x/y for each component
     print("Performing connected component analysis...")
     bounding_box_list = computeConnectedComponentLabeling(current_pixel_array, image_width, image_height)
     
     number_of_coins = len(bounding_box_list)
     
-    ############################################
+
     ### Bounding box coordinates information ###
     ### bounding_box[0] = min x
     ### bounding_box[1] = min y
     ### bounding_box[2] = max x
     ### bounding_box[3] = max y
-    ############################################
     
-    # bounding_box_list = [[150, 140, 200, 190]]  # This is a dummy bounding box list, please comment it out when testing your own code.
+    # bounding_box_list = [[150, 140, 200, 190]]  # This is a dummy bounding box list. Comment it out when testing.
     # px_array = median_filtered # Change this to test current output
 
     px_array = pyplot.imread(input_filename)
@@ -492,7 +491,7 @@ def main(input_path, output_path):
         pyplot.imshow(px_array, cmap='gray', aspect='equal')
         pyplot.show()
     else:
-        # Please, DO NOT change this code block!
+        # Do not change this code block
         pyplot.savefig(output_path, bbox_inches='tight', pad_inches=0)
 
 

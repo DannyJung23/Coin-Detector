@@ -10,7 +10,7 @@ from matplotlib.patches import Rectangle
 # Import png reader library
 import imageIO.png
 
-TEST_MODE = False  # Do not change this variable
+TEST_MODE = False # Do not change this variable
 
 def readRGBImageToSeparatePixelArrays(input_filename):
     image_reader = imageIO.png.Reader(filename=input_filename)
@@ -376,7 +376,7 @@ def computeConnectedComponentLabeling(pixel_array, image_width, image_height):
 
 # Pipeline
 def main(input_path, output_path):
-    # This is the default input image. Change the 'image_name' variable to test other images.
+    # Change the 'image_name' variable to test other images.
     image_name = 'simple_6'
     input_filename = f'./Images/simple_images/{image_name}.png'
     if TEST_MODE:
@@ -388,10 +388,11 @@ def main(input_path, output_path):
     
     grey_scale = computeRGBToGreyscale(image_width, image_height, px_array_r, px_array_g, px_array_b)
 
-    nr_bins = 256  # 256 intensity values from 0 to 255
+    nr_bins = 256 # 256 intensity values from 0 to 255
 
     cumulative_histogram = computeCumulativeHistogram(grey_scale, image_width, image_height, nr_bins)
     
+    # 5-95 percentile-based mapping
     print("Converting to greyscale and normalising...")
     normalised_grey_scale = percentileMapping(grey_scale, image_width, image_height, cumulative_histogram, 5, 95)
 
