@@ -14,7 +14,7 @@ TEST_MODE = False # Do not change this variable
 
 def readRGBImageToSeparatePixelArrays(input_filename):
     image_reader = imageIO.png.Reader(filename=input_filename)
-    # png reader gives us width and height, as well as RGB data in image_rows (a list of rows of RGB triplets)
+    # Png reader gives width and height, as well as RGB data in image_rows (a list of rows of RGB triplets)
     (image_width, image_height, rgb_image_rows, rgb_image_info) = image_reader.read()
 
     print("read image width={}, height={}".format(image_width, image_height))
